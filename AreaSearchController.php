@@ -176,7 +176,7 @@ class AreaSearchController extends ParentController
         if (Area2Search::orderArea2Search($params['ids'])) {
             return response()->json(true);
         } else {
-            return response()->json(false);a
+            return response()->json(false);aa
         }
     }
 

@@ -99,13 +99,14 @@ class AreaSearchController extends ParentController
         $areaName = $request->get('area_name');
         $areaId = $request->get('area_id');
         $areaName = preg_replace('/\s+/', ' ', $areaName);
+        $maxlen = 100;
         if ($this->checkDuplicateArea($areaName, $areaId)) {
             return response('duplicate', 200);
         }
         if ($areaName == '') {
             return response('error', 200);
         }
-        if (strlen($areaName) > 100) {
+        if (strlen($areaName) > $maxlen) {
             return response('fail', 200);
         }
         return response('success', 200);
@@ -131,20 +132,25 @@ class AreaSearchController extends ParentController
         $area->fill($request->all());
         $area->name = preg_replace('/\s+/', ' ', $area->name);
         $area->order = 0;
-        if($area->name == '') {
+        checkAddUp($area->name, $area, $areas, $area->id, $cityID);
+        return redirect(route(ADMIN_AREA_SEARCH));
+    }
+
+    public function checkAddUp($name, $area, $areas, $id, $cityID){
+        $maxlen = 100;
+        if ($name === '') {
             Session::flash("alert-error", __("messages.area.add_required_name"));
         }
-        elseif(strlen($area->name) > 100) {
+        elseif (strlen($name) > $maxlen) {
             Session::flash("alert-error", __("messages.area.add_max_100_name"));
         }
-        elseif(array_search($area->name, $areas) != false) {
+        elseif (array_search($name, $areas) != false) {
             Session::flash("alert-error", __("messages.area.add_unique_name"));
         }
         elseif ($area->save()) {
-            Area2Search::updateOrderByAreaAddUp($area->id, $cityID);
+            Area2Search::updateOrderByAreaAddUp($id, $cityID);
             Session::flash("alert-success", __("messages.area.addup_success"));
         }
-        return redirect(route(ADMIN_AREA_SEARCH));
     }
 
     public function addDown(Request $request)
@@ -154,20 +160,25 @@ class AreaSearchController extends ParentController
         $area = new Area2Search();
         $area->fill($request->all());
         $area->name = preg_replace('/\s+/', ' ', $area->name);
-        if($area->name == '') {
+        checkAddDown($area->name, $area, $areas, $area->id, $cityID);
+        return redirect(route(ADMIN_AREA_SEARCH));
+    }
+
+     public function checkAddDown($name, $area, $areas, $id, $cityID){
+        $maxlen = 100;
+        if ($name === '') {
             Session::flash("alert-error", __("messages.area.add_required_name"));
         }
-        elseif(strlen($area->name) > 100) {
+        elseif(strlen($name) > $maxlen) {
             Session::flash("alert-error", __("messages.area.add_max_100_name"));
         }
-        elseif(array_search($area->name, $areas) != false) {
+        elseif(array_search($name, $areas) != false) {
             Session::flash("alert-error", __("messages.area.add_unique_name"));
         }
         elseif ($area->save()) {
-            Area2Search::updateOrderByAreaAddDown($cityID, $area->id);
+            Area2Search::updateOrderByAreaAddDown($cityID, $id);
             Session::flash("alert-success", __("messages.area.addup_success"));
         }
-        return redirect(route(ADMIN_AREA_SEARCH));
     }
 
     public function order(Request $request)
@@ -175,9 +186,8 @@ class AreaSearchController extends ParentController
         $params = $request->all();
         if (Area2Search::orderArea2Search($params['ids'])) {
             return response()->json(true);
-        } else {
-            return response()->json(false);aa
         }
+        return response()->json(false);
     }
 
 }

@@ -72,13 +72,14 @@ class AreaDisplayController extends ParentController
         $areaName = $request->get('area_name');
         $areaId = $request->get('area_id');
         $areaName = preg_replace('/\s+/', ' ', $areaName);
+        $maxlen = 100;
         if ($this->checkDuplicateArea($areaName, $areaId)) {
             return response('duplicate', 200);
         }
         if ($areaName == '') {
             return response('error', 200);
         }
-        if (strlen($areaName) > 100) {
+        if (strlen($areaName) > $maxlen) {
             return response('fail', 200);
         }
         return response('success', 200);
@@ -104,10 +105,11 @@ class AreaDisplayController extends ParentController
         $area->fill($request->all());
         $area->name = preg_replace('/\s+/', ' ', $area->name);
         $area->order = 0;
+        $maxlen = 100;
         if($area->name == '') {
             Session::flash("alert-error", __("messages.area.add_required_name"));
         }
-        elseif(strlen($area->name) > 100) {
+        elseif(strlen($area->name) > $maxlen) {
             Session::flash("alert-error", __("messages.area.add_max_100_name"));
         }
         elseif(array_search($area->name, $areas) != false) {
@@ -127,10 +129,11 @@ class AreaDisplayController extends ParentController
         $area = new Area1Display();
         $area->fill($request->all());
         $area->name = preg_replace('/\s+/', ' ', $area->name);
+        $maxlen = 100;
         if($area->name == '') {
             Session::flash("alert-error", __("messages.area.add_required_name"));
         }
-        elseif(strlen($area->name) > 100) {
+        elseif(strlen($area->name) > $maxlen) {
             Session::flash("alert-error", __("messages.area.add_max_100_name"));
         }
         elseif(array_search($area->name, $areas) != false) {
